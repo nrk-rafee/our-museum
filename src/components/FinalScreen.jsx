@@ -1,99 +1,265 @@
-import { useEffect, useRef, useState } from "react";
+
+"use client";
+
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Music2,
+  Volume2,
+  VolumeX,
+  Heart,
+  Maximize2
+} from "lucide-react";
+
+const memories = [
+  {
+    title: "Our First Memory",
+    image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1200",
+    description: "A beautiful moment to remember forever."
+  },
+  {
+    title: "Beautiful Moments",
+    image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=1200",
+    description: "Every little moment means something."
+  },
+  {
+    title: "Special Memories",
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200",
+    description: "Some memories never fade."
+  },
+  {
+    title: "Forever Special",
+    image: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1200",
+    description: "A collection of unforgettable moments."
+  },
+  {
+    title: "Our Little World",
+    image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1200",
+    description: "Welcome to our little museum."
+  }
+];
 
 export default function FinalScreen() {
-    const audioRef = useRef(null);
-    const [currentIndex, setCurrentIndex] = useState(-1);
-    const [isOver, setIsOver] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [musicOn, setMusicOn] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const audioRef = useRef(null);
 
-    const lyrics = [
-        { text: "Vaada tha kab ka", duration: 2000 },
-        { text: "Ab jaa ke aaye", duration: 2000 },
-        { text: "Phir bhi ganeemat, aaye toh hain", duration: 3700 },
-        { text: "Aaiye, aaiye, shauq se aaiye", duration: 3800 },
-        { text: "Aaiye, aake iss baar na jaiye ❤️", duration: 3000 }
-    ];
+  const playMusic = async () => {
+    if (!audioRef.current) return;
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.play().catch(e => console.log("Audio play failed:", e));
-        }
+    try {
+      if (musicOn) {
+        audioRef.current.pause();
+        setMusicOn(false);
+      } else {
+        await audioRef.current.play();
+        setMusicOn(true);
+      }
+    } catch (error) {
+      console.log("Music could not play:", error);
+    }
+  };
 
-        let timeoutId;
+  const next = () => {
+    setCurrent((prev) => (prev + 1) % memories.length);
+  };
 
-        const advanceLyric = (index) => {
-            if (index < lyrics.length) {
-                timeoutId = setTimeout(() => {
-                    if (index + 1 < lyrics.length) {
-                        setCurrentIndex(index + 1);
-                        advanceLyric(index + 1);
-                    } else {
-                        setTimeout(() => {
-                            setIsOver(true);
-                        }, 2000);
-                    }
-                }, lyrics[index].duration);
-            }
-        };
-
-        const startDelay = setTimeout(() => {
-            setCurrentIndex(0);
-            advanceLyric(0);
-        }, 100);
-
-        return () => {
-            clearTimeout(timeoutId);
-            clearTimeout(startDelay);
-        };
-    }, []);
-
-    return (
-        <>
-            <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="w-full max-w-sm relative z-10 will-change-transform"
-            >
-
-                <audio ref={audioRef} src="/music.mp3" preload="auto" />
-
-                <img src="sticker.webp" alt="sticker" className="absolute w-44 -top-24 left-1/2 -translate-x-1/2 z-20" />
-
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl shadow-pink-900/20 relative overflow-hidden group min-h-50 flex flex-col items-center justify-center">
-
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" />
-
-                    <div className="relative z-10 flex flex-col items-center space-y-10 w-full">
-                        <div className="w-full min-h-15 flex items-center justify-center relative">
-                            <AnimatePresence mode="wait">
-                                <motion.p
-                                    key={currentIndex}
-                                    initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
-                                    animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                                    exit={{ opacity: 0, y: -20, scale: 0.95, filter: "blur(6px)" }}
-                                    transition={{ duration: 0.7, ease: "easeInOut" }}
-                                    className="text-center text-slate-200 text-xl md:text-2xl font-semibold italic tracking-wide absolute w-full"
-                                >
-                                    {currentIndex >= 0 && lyrics[currentIndex]?.text}
-                                </motion.p>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* The Black Overlay at the end */}
-            <AnimatePresence>
-                {isOver && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 2, ease: "easeInOut" }}
-                        className="fixed inset-0 bg-black z-50 pointer-events-auto"
-                    />
-                )}
-            </AnimatePresence>
-        </>
+  const previous = () => {
+    setCurrent((prev) =>
+      (prev - 1 + memories.length) % memories.length
     );
+  };
+
+  return (
+    <div className="museum">
+      <audio ref={audioRef} src="/music.mp3" loop />
+
+      {/* Background */}
+      <div className="museum-background" />
+
+      {/* Header */}
+      <header className="museum-header">
+        <div className="museum-logo">
+          <Heart size={19} />
+          <span>OUR MUSEUM</span>
+        </div>
+
+        <button
+          className="music-button"
+          onClick={playMusic}
+          aria-label="Toggle music"
+        >
+          {musicOn ? <Volume2 /> : <VolumeX />}
+          <span>{musicOn ? "Music On" : "Music Off"}</span>
+        </button>
+      </header>
+
+      {/* Introduction */}
+      <section className="museum-intro">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+        >
+          <span className="museum-eyebrow">
+            A PLACE FULL OF MEMORIES
+          </span>
+
+          <h1>
+            Welcome to
+            <br />
+            <span>Our Little Museum</span>
+          </h1>
+
+          <p>
+            Every picture has a story.
+            Every memory has a meaning.
+            Take a little journey through our memories.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Gallery Room */}
+      <section className="gallery-section">
+        <div className="gallery-heading">
+          <span>THE MEMORY COLLECTION</span>
+          <h2>Our Beautiful Memories</h2>
+        </div>
+
+        <div className="museum-room">
+          <div className="room-wall">
+            {memories.map((memory, index) => (
+              <motion.button
+                key={memory.title}
+                className={`memory-frame ${
+                  current === index ? "active-frame" : ""
+                }`}
+                onClick={() => {
+                  setCurrent(index);
+                  setSelected(memory);
+                }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <div className="frame-inner">
+                  <img
+                    src={memory.image}
+                    alt={memory.title}
+                  />
+                </div>
+
+                <span className="frame-title">
+                  {memory.title}
+                </span>
+
+                <span className="frame-number">
+                  0{index + 1}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+
+          <div className="room-floor" />
+        </div>
+
+        {/* Selected Memory */}
+        <div className="featured-memory">
+          <div className="featured-image">
+            <img
+              src={memories[current].image}
+              alt={memories[current].title}
+            />
+
+            <button
+              className="expand-button"
+              onClick={() => setSelected(memories[current])}
+            >
+              <Maximize2 size={18} />
+            </button>
+          </div>
+
+          <div className="featured-details">
+            <span>FEATURED MEMORY · 0{current + 1}</span>
+
+            <h3>{memories[current].title}</h3>
+
+            <p>{memories[current].description}</p>
+
+            <div className="gallery-controls">
+              <button onClick={previous} aria-label="Previous">
+                <ChevronLeft />
+              </button>
+
+              <span>
+                {current + 1} / {memories.length}
+              </span>
+
+              <button onClick={next} aria-label="Next">
+                <ChevronRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dedication */}
+      <section className="dedication">
+        <Heart size={28} />
+        <h2>Made with Love</h2>
+        <p>
+          Some places are special because of the memories
+          they hold. This little museum is one of them.
+        </p>
+        <span>FOREVER IN OUR MEMORIES</span>
+      </section>
+
+      {/* Image Viewer */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            className="image-viewer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelected(null)}
+          >
+            <button
+              className="viewer-close"
+              onClick={() => setSelected(null)}
+              aria-label="Close"
+            >
+              <X />
+            </button>
+
+            <motion.div
+              className="viewer-content"
+              initial={{ scale: 0.85, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.85 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <img
+                src={selected.image}
+                alt={selected.title}
+              />
+
+              <h2>{selected.title}</h2>
+              <p>{selected.description}</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Footer */}
+      <footer className="museum-footer">
+        <Music2 size={15} />
+        <span>A little museum of beautiful memories</span>
+        <Heart size={14} />
+      </footer>
+    </div>
+  );
 }
