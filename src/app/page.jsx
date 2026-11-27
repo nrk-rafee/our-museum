@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,47 +6,53 @@ import { motion, AnimatePresence } from "framer-motion";
 import Screen1 from "@/components/Screen1";
 import Screen2 from "@/components/Screen2";
 import Screen3 from "@/components/Screen3";
+import CharacterSelect from "@/components/CharacterSelect";
 import FinalScreen from "@/components/FinalScreen";
 
 export default function Website() {
   const [step, setStep] = useState(0);
-
-  const Background = () => (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-pink-600/10 blur-[120px] rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
-    </div>
-  );
+  const [character, setCharacter] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-slate-200 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <Background />
+    <main className="relative min-h-screen w-full overflow-hidden bg-[#100d0a] text-slate-200">
+      <AnimatePresence mode="wait">
+        {step === 0 && (
+          <Screen1 key="screen1" onNext={() => setStep(1)} />
+        )}
 
-      <div className="w-full max-w-md relative z-10 flex flex-col items-center justify-center min-h-100">
-        <AnimatePresence mode="wait">
-          {step === 0 && <Screen1 key="screen1" onNext={() => setStep(1)} />}
-          {step === 1 && <Screen2 key="screen2" onNext={() => setStep(2)} />}
-          {step === 2 && <Screen3 key="screen3" onNext={() => setStep(3)} />}
-          {step === 3 && <FinalScreen key="final-screen" />}
-        </AnimatePresence>
-      </div>
+        {step === 1 && (
+          <Screen2 key="screen2" onNext={() => setStep(2)} />
+        )}
 
-      {/* Watermark */}
+        {step === 2 && (
+          <Screen3 key="screen3" onNext={() => setStep(3)} />
+        )}
+
+        {step === 3 && (
+          <CharacterSelect
+            key="character-select"
+            onStart={(choice) => {
+              setCharacter(choice);
+              setStep(4);
+            }}
+          />
+        )}
+
+        {step === 4 && (
+          <FinalScreen
+            key="museum"
+            character={character}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div
-        initial={{ x: 60, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{
-          duration: 0.8,
-          delay: 0.8,
-        }}
-        className="fixed bottom-4 right-4 text-sm text-white/40 pointer-events-none z-50 font-light">
-        @anujbuilds
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="pointer-events-none fixed bottom-3 right-4 z-50 text-xs text-white/30"
+      >
+        Our Museum
       </motion.div>
-    </div>
+    </main>
   );
 }
-
-
-
-
-
