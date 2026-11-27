@@ -1,0 +1,149 @@
+
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { UserRound, Check, ArrowRight } from "lucide-react";
+
+const characters = [
+  {
+    id: "explorer",
+    name: "The Explorer",
+    description: "Classic museum visitor",
+    skin: "#d99b70",
+    hair: "#29201c",
+    shirt: "#315b68",
+    pants: "#26313e",
+  },
+  {
+    id: "artist",
+    name: "The Artist",
+    description: "Creative and curious",
+    skin: "#efbd91",
+    hair: "#493027",
+    shirt: "#9a5265",
+    pants: "#383047",
+  },
+  {
+    id: "traveler",
+    name: "The Traveler",
+    description: "Ready for every room",
+    skin: "#9b6247",
+    hair: "#171515",
+    shirt: "#b18a4c",
+    pants: "#343d32",
+  },
+];
+
+export default function CharacterSelect({ onStart }) {
+  const [selected, setSelected] = useState(characters[0]);
+
+  return (
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#100d0a] px-5 py-12 text-[#f5e5c9]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-500/10 blur-[110px]" />
+        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-rose-500/10 blur-[100px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-4xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-200/70">
+          Before entering the museum
+        </p>
+
+        <h1 className="mt-4 font-serif text-4xl font-bold sm:text-6xl">
+          Choose Your Character
+        </h1>
+
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-stone-400">
+          Pick your visitor. Your journey through every room
+          of our museum is about to begin.
+        </p>
+
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
+          {characters.map((character) => {
+            const active = selected.id === character.id;
+
+            return (
+              <motion.button
+                key={character.id}
+                onClick={() => setSelected(character)}
+                whileHover={{ y: -5 }}
+                whileTap={{ scale: 0.97 }}
+                className={`relative rounded-3xl border p-5 text-center transition ${
+                  active
+                    ? "border-amber-300 bg-amber-200/10 shadow-[0_0_35px_rgba(217,169,91,0.12)]"
+                    : "border-white/10 bg-white/[0.03]"
+                }`}
+              >
+                {active && (
+                  <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-amber-300 text-black">
+                    <Check size={16} />
+                  </span>
+                )}
+
+                {/* Character preview */}
+                <div className="mx-auto flex h-44 items-end justify-center">
+                  <div className="relative flex flex-col items-center">
+                    <div
+                      className="z-10 h-12 w-12 rounded-full border-2 border-black/20"
+                      style={{ background: character.skin }}
+                    >
+                      <div
+                        className="h-4 w-full rounded-t-full"
+                        style={{ background: character.hair }}
+                      />
+                    </div>
+
+                    <div
+                      className="h-16 w-16 rounded-t-2xl"
+                      style={{ background: character.shirt }}
+                    />
+
+                    <div className="flex gap-2">
+                      <div
+                        className="h-12 w-6 rounded-b-lg"
+                        style={{ background: character.pants }}
+                      />
+                      <div
+                        className="h-12 w-6 rounded-b-lg"
+                        style={{ background: character.pants }}
+                      />
+                    </div>
+
+                    <div className="mt-1 flex gap-2">
+                      <div className="h-3 w-7 rounded-full bg-[#d7c6ad]" />
+                      <div className="h-3 w-7 rounded-full bg-[#d7c6ad]" />
+                    </div>
+                  </div>
+                </div>
+
+                <h2 className="mt-5 text-lg font-semibold text-amber-100">
+                  {character.name}
+                </h2>
+
+                <p className="mt-2 text-xs text-stone-400">
+                  {character.description}
+                </p>
+
+                <p className="mt-4 text-[10px] tracking-[0.2em] text-amber-200/60">
+                  {active ? "SELECTED" : "TAP TO SELECT"}
+                </p>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        <motion.button
+          onClick={() => onStart(selected)}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
+          className="mx-auto mt-10 flex min-h-14 w-full max-w-xs items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#b58a4b] to-[#e0b873] px-7 py-4 font-bold text-[#21170d]"
+        >
+          <UserRound size={19} />
+          Enter the Museum
+          <ArrowRight size={19} />
+        </motion.button>
+      </div>
+    </main>
+  );
+}
